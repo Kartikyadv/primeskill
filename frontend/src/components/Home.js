@@ -14,7 +14,8 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="pt-14">
+    <div className="pt-24">
+      <h1>dummy data</h1>
       {postStatus === 'loading' && <div>Loading...</div>}
       {postStatus === 'failed' && <div>{error}</div>}
       {postStatus === 'succeeded' &&
