@@ -18,7 +18,7 @@ const Home = () => {
       {postStatus === 'loading' && <div>Loading...</div>}
       {postStatus === 'failed' && <div>{error}</div>}
       {postStatus === 'succeeded' &&
-        posts.map((post) => (
+        posts?.map((post) => (
           <Posts key={post._id} post={post} />
         ))}
     </div>
