@@ -1,0 +1,12 @@
+D               comment redux change
+D               delete p image delete krna h 
+D               edit redux
+D               delete comment
+                comment reply and like
+                user post page p post dikhani h 
+                user can edit profile
+                user can only caption or only image
+
+
+                messaging
+                audio calling video calling
