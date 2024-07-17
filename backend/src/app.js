@@ -6,7 +6,10 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.js";
 import postRoutes from "./routes/post.js";
 import userRoutes from "./routes/user.js";
-import path from "path"
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -22,7 +25,7 @@ app.use(
 connectDB();
 
 // Init Middleware
-app.use(express.static(path.join(__dirname,'../../frontend/build')));
+app.use(express.static(path.join(__dirname, "../../frontend/build")));
 app.use(express.json());
 app.use("/uploads", express.static("src/uploads"));
 app.use(express.urlencoded({ extended: true }));
