@@ -22,6 +22,7 @@ app.use(
 connectDB();
 
 // Init Middleware
+app.use(express.static(path.join(__dirname,'../../frontend/build')));
 app.use(express.json());
 app.use("/uploads", express.static("src/uploads"));
 app.use(express.urlencoded({ extended: true }));
