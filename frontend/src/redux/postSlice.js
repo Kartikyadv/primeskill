@@ -2,7 +2,35 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { fetchPosts,createPost,likePost,deletePost,editPost, addComment, deleteComment, likeComment, fetchComments, fetchReplies } from "./postThunkReducers";
 
 const initialState = {
-  posts: [],
+  posts: [{
+    "user": {
+      "$oid": "6697969421702e109f784241"
+    },
+    "imgurl": "1721215160720-Google (1).png",
+    "text": "testing",
+    "comments": [
+      {
+        "$oid": "6697ad41c9fbf6f3ed357d1e"
+      }
+    ],
+    "likes": [
+      {
+        "_id": {
+          "$oid": "6697969421702e109f784241"
+        }
+      }
+    ],
+    "date": {
+      "$date": "2024-07-17T11:19:20.765Z"
+    },
+    "createdAt": {
+      "$date": "2024-07-17T11:19:20.771Z"
+    },
+    "updatedAt": {
+      "$date": "2024-07-17T11:38:41.536Z"
+    },
+    "__v": 2
+  }],
   message: null,
   status: "idle",
   error: null,
