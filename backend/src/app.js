@@ -16,7 +16,6 @@ dotenv.config();
 const app = express();
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL, // Allow only your frontend domain
     credentials: true, // Allows cookies to be sent with requests
   })
 );
