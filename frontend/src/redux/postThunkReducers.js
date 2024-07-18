@@ -5,6 +5,7 @@ import { BACKENDURL } from "../config/data";
 // Async thunk to fetch posts
 export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
   const response = await axiosInstance.get(BACKENDURL + "api/post/");
+  console.log(response);
   return response.data;
 });
 
