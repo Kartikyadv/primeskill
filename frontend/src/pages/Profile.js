@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
-import UserProfile from "./UserProfile";
+import UserProfile from "../components/UserProfile";
 import axiosInstance from '../config/axiosConfig';
 import { BACKENDURL } from "../config/data";
 import { useSelector } from "react-redux";
-import UserPosts from "./UserPost";
+import UserPosts from "../components/UserPost";
+import { useParams } from "react-router-dom";
 
 const Profile = () => {
   const [posts, setPosts] = useState([]);
   const [user, setUser] = useState({});
-  const userid = useSelector((store) => store.user.user.userid);
+  const { userid } = useParams();
   useEffect(() => {
     const fetchUser = async () => {
       const user = await axiosInstance.get(
@@ -18,7 +19,7 @@ const Profile = () => {
       setUser(user.data.user);
     };
     fetchUser();
-  }, []);
+  }, [userid]);
   return (
     <div className=" pt-20 md:w-[90%] mx-auto">
       <div className="">

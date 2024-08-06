@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { useDispatch } from 'react-redux';
-import { setUser } from '../redux/userSlice';
+import { setUser } from '../redux/user/userSlice';
 import { BACKENDURL } from '../config/data';
 import { toast } from 'react-toastify';
 import bg from "../images/bg.jpg"

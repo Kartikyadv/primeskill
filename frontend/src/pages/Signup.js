@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { setUser } from '../redux/userSlice';
+import { setUser } from '../redux/user/userSlice';
 import { useDispatch } from 'react-redux';
 import { BACKENDURL } from '../config/data';
 import { toast } from 'react-toastify';

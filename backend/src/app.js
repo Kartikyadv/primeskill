@@ -6,6 +6,8 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.js";
 import postRoutes from "./routes/post.js";
 import userRoutes from "./routes/user.js";
+import chatRoutes from "./routes/chat.js";
+import messageRoutes from "./routes/message.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -18,9 +20,9 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://primeskillfront.onrender.com", // Allow only your frontend domain
-    // origin: "http://localhost:3000", // Allow only your frontend domain
-    credentials: true, // Allows cookies to be sent with requests
+    origin: "https://primeskillfront.onrender.com",
+    // origin: process.env.FRONTEND_URL,
+    credentials: true,
   })
 );
 
@@ -29,7 +31,6 @@ connectDB();
 
 // Init Middleware
 app.use(express.json());
-app.use("/uploads", express.static("src/uploads"));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
@@ -37,11 +38,13 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/chat", chatRoutes);
+app.use("/api/message", messageRoutes);
 
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, "../../frontend/build")));
 
-// Serve React app for all other routes
+// // Serve React app for all other routes
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../../frontend/build", "index.html"));
 });

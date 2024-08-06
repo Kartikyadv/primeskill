@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { BACKENDURL } from "../config/data";
 import { toast } from "react-toastify";
@@ -7,7 +7,14 @@ import dots from "../images/dots.png";
 import love from "../images/love.png";
 import redlove from "../images/redlove.png";
 import comment from "../images/comment.png";
-import { deletePost, editPost, likePost } from "../redux/postThunkReducers";
+import {
+  deletePost,
+  editPost,
+  likePost,
+} from "../redux/post/postThunkReducers";
+import { Link } from "react-router-dom";
+import { MdDelete, MdEdit } from "react-icons/md";
+import { FaShare } from "react-icons/fa";
 
 const Posts = ({ post }) => {
   const userid = useSelector((store) => store.user.user.userid);
@@ -17,8 +24,21 @@ const Posts = ({ post }) => {
   const { comments, createdAt, imgurl, likes, text, user, _id } = post;
   const [editText, setEditText] = useState(text);
   const [isLiked, setIsLiked] = useState(false);
-  const imageUrl = `${BACKENDURL}uploads/${imgurl}`;
   const dispatch = useDispatch();
+  const optionsRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (optionsRef.current && !optionsRef.current.contains(event.target)) {
+        setShowOptions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     setIsLiked(likes.some((like) => like._id.toString() === userid));
@@ -42,7 +62,7 @@ const Posts = ({ post }) => {
     dispatch(deletePost(post._id));
     toast("Post deleted");
   };
-  
+
   const handleSaveEdit = () => {
     dispatch(editPost({ postId: post._id, text: editText }));
     toast("Post edited");
@@ -50,23 +70,27 @@ const Posts = ({ post }) => {
   };
 
   const handleShowComment = async () => {
-    setShowComments(!showComments)
-  }
+    setShowComments(!showComments);
+  };
 
   return (
     <div className="select-none max-w-2xl mx-auto mt-4 pt-4 px-4 bg-white shadow-md rounded-lg ">
       <div className="flex items-center mb-4 justify-between">
         <div className="flex items-center">
-          <img
-            className="w-10 h-10 rounded-full mr-4"
-            src={
-              user?.profilePicture ||
-              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY6qtMj2fJlymAcGTWLvNtVSCULkLnWYCDcQ&s"
-            }
-            alt={`${user?.name}'s profile`}
-          />
+          <Link to={"/profile/" + user._id}>
+            <img
+              className="w-10 h-10 rounded-full mr-4"
+              src={
+                user?.profilePicture ||
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY6qtMj2fJlymAcGTWLvNtVSCULkLnWYCDcQ&s"
+              }
+              alt={`${user?.name}'s profile`}
+            />
+          </Link>
           <div>
-            <div className="text-lg font-semibold">{user?.name}</div>
+            <Link to={"/profile/" + user._id}>
+              <div className="text-lg font-semibold">{user?.name}</div>
+            </Link>
             <div className="text-sm text-gray-500">
               {new Date(createdAt).toLocaleString()}
             </div>
@@ -76,26 +100,32 @@ const Posts = ({ post }) => {
           <img className="w-5 h-5 rounded-full" src={dots} alt="edit option" />
           <div className="absolute right-0 w-32">
             {showOptions && (
-              <div className="bg-white shadow-md rounded-lg p-2 text-gray-800 mt-2">
+              <div
+                ref={optionsRef}
+                className="bg-white shadow-md rounded-lg p-2 text-gray-800 mt-2"
+              >
                 <ul>
                   {userid === user._id && (
                     <>
-                      <li
-                        className="cursor-pointer p-2 hover:bg-gray-100"
-                        onClick={handleEdit}
-                      >
-                        Edit
+                      <li className="hover:bg-gray-100 rounded-lg p-1 font-semibold text-sky-900 cursor-pointer flex justify-between" onClick={handleEdit}>
+                        <div>Edit</div>
+                        <div className="pt-1 pl-1">
+                          <MdEdit />
+                        </div>
                       </li>
-                      <li
-                        className="cursor-pointer p-2 hover:bg-gray-100"
-                        onClick={handleDelete}
-                      >
-                        Delete
+                      <li className="hover:bg-gray-100 rounded-lg p-1 font-semibold text-red-600 cursor-pointer flex justify-between" onClick={handleDelete}>
+                        <div>Delete</div>
+                        <div className="pt-1 pl-1">
+                          <MdDelete />
+                        </div>
                       </li>
                     </>
                   )}
-                  <li className="cursor-pointer p-2 hover:bg-gray-100">
-                    Share
+                  <li className="hover:bg-gray-100 rounded-lg p-1 font-semibold text-sky-900 cursor-pointer flex justify-between">
+                    <div>Share</div>
+                    <div className="pt-1 pl-1">
+                      <FaShare />
+                    </div>
                   </li>
                 </ul>
               </div>
@@ -132,7 +162,7 @@ const Posts = ({ post }) => {
         <div className="mb-4 bg-gray-200 rounded-md">
           <img
             className="mx-auto w-auto max-h-96 rounded-lg"
-            src={imageUrl}
+            src={imgurl}
             alt="Post content"
           />
         </div>

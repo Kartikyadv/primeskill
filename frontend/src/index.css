@@ -23,6 +23,9 @@ code {
 .bg-custom {
   background-image: url('./images/bg.jpg');
 }
+.bg-custom2 {
+  background-image: url('./images/bg.jpg');
+}
 /* For WebKit browsers */
 ::-webkit-scrollbar {
   width: 4px;
@@ -59,4 +62,33 @@ code {
 .comment-icon-wrapper:hover .comment-icon {
   transform: scale(1.5);
   filter: drop-shadow(0 0 0.75rem #076de2);
+}
+@keyframes popUpDownIn {
+  0% {
+    transform: translateY(80%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes popUpDownOut {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(80%);
+    opacity: 0;
+  }
+}
+
+.pop-up-down-in {
+  animation: popUpDownIn 0.2s ease-in-out forwards;
+}
+
+.pop-up-down-out {
+  animation: popUpDownOut 0.1s ease-in-out forwards;
 }

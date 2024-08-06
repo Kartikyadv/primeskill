@@ -5,12 +5,12 @@ import {
   deleteComment,
   fetchReplies,
   likeComment,
-} from "../redux/postThunkReducers";
+} from "../redux/post/postThunkReducers";
 import { toast } from "react-toastify";
 import love from "../images/love.png";
 import redlove from "../images/redlove.png";
 
-const Comment = ({
+const Replies = ({
   Post,
   comment,
   handleReply,
@@ -35,9 +35,9 @@ const Comment = ({
     setRefreshReply(!refreshReply);
   };
   const handlecommentLike = () => {
-    dispatch(likeComment({ _id, postid }));
     setIsLiked(!isLiked);
     setRefreshReply(!refreshReply);
+    dispatch(likeComment({ _id, postid }));
   };
 
   return (
@@ -101,4 +101,4 @@ const Comment = ({
   );
 };
 
-export default Comment;
+export default Replies;

@@ -5,7 +5,7 @@ import {
   deleteComment,
   fetchReplies,
   likeComment,
-} from "../redux/postThunkReducers";
+} from "../redux/post/postThunkReducers";
 import { toast } from "react-toastify";
 import love from "../images/love.png";
 import redlove from "../images/redlove.png";
@@ -21,9 +21,10 @@ const Comment = ({
   refreshReply,
 }) => {
   const [showOptions, setshowOptions] = useState(false);
-  const [replies, setreplies] = useState([]);
-  const [showReplies, setshowReplies] = useState(false);
+  const [replies, setReplies] = useState([]);
+  const [showReplies, setShowReplies] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(comment.likes.length);
   const userid = useSelector((store) => store.user.user.userid);
   const dispatch = useDispatch();
   const { author, content, createdAt, likes, post, _id } = comment;
@@ -31,32 +32,34 @@ const Comment = ({
 
   useEffect(() => {
     setIsLiked(likes.some((like) => like.toString() === userid));
-  }, [likes]);
+    setLikesCount(likes.length);
+  }, [likes, userid]);
 
   useEffect(() => {
-    const fetchReplie = async () => {
+    const fetchRepliesData = async () => {
       const res = await dispatch(fetchReplies({ _id, postid }));
       if (res.payload) {
-        setreplies(res.payload.replies);
+        setReplies(res.payload.replies);
       }
     };
-    fetchReplie();
-  }, [refreshReply]);
+    fetchRepliesData();
+  }, [refreshReply, dispatch, _id, postid]);
 
-  const handledeleteComment = () => {
-    dispatch(deleteComment({ _id, postid }));
+  const handleDeleteComment = async () => {
+    await dispatch(deleteComment({ _id, postid }));
     toast("Comment Deleted");
     setRefreshComment(!refreshComment);
   };
-  const handlecommentLike = () => {
-    dispatch(likeComment({ _id, postid }));
+
+  const handleCommentLike = async () => {
     setIsLiked(!isLiked);
+    setLikesCount(isLiked ? likesCount - 1 : likesCount + 1);
+    await dispatch(likeComment({ _id, postid }));
     setRefreshComment(!refreshComment);
   };
-  const handleviewreplies = () => {
-    dispatch(fetchReplies({ _id, postid }));
-    setRefreshComment(!refreshComment);
-    setshowReplies(!showReplies);
+
+  const handleViewReplies = () => {
+    setShowReplies(!showReplies);
   };
 
   return (
@@ -71,7 +74,7 @@ const Comment = ({
               }
               alt={`User profile`}
             />
-            <div className=" p-1 px-3 rounded-lg w-full flex justify-between">
+            <div className="p-1 px-3 rounded-lg w-full flex justify-between">
               <div>
                 <div className="text-sm">
                   <span className="font-semibold">{author.name}</span>
@@ -86,9 +89,9 @@ const Comment = ({
                 className="h-5 w-5 cursor-pointer relative"
               >
                 <img className="h-5 w-5" src={dots} />
-                {showOptions && userid == author._id && (
+                {showOptions && userid === author._id && (
                   <div
-                    onClick={handledeleteComment}
+                    onClick={handleDeleteComment}
                     className="bg-white rounded-lg right-0 absolute p-2 px-5 font-semibold text-red-600"
                   >
                     <button>Delete</button>
@@ -98,11 +101,10 @@ const Comment = ({
             </div>
           </div>
           <div className="flex flex-row w-[91%] ml-auto font-medium text-gray-600 text-sm justify-between h-7">
-            <div className=" text-gray-500 mr-4 flex flex-row text-xs">
-              {likes.length > 0 ? (
-                <div className="px-1">{likes.length} Likes</div>
+            <div className="text-gray-500 mr-4 flex flex-row text-xs">
+              {likesCount > 0 ? (
+                <div className="px-1">{likesCount} Likes</div>
               ) : null}
-
               <div
                 onClick={() => handleReply(author.name, _id)}
                 className="px-2 cursor-pointer hover:text-black"
@@ -110,7 +112,7 @@ const Comment = ({
                 reply
               </div>
               <div
-                onClick={() => handleviewreplies(author.name, _id)}
+                onClick={handleViewReplies}
                 className="px-2 cursor-pointer hover:text-black"
               >
                 {replies.length > 0 ? (
@@ -123,7 +125,7 @@ const Comment = ({
             </div>
             <div>
               <img
-                onClick={handlecommentLike}
+                onClick={handleCommentLike}
                 className="like-icon h-5 cursor-pointer mt-1 mr-1 px-3"
                 src={isLiked ? redlove : love}
                 alt="like"
@@ -133,14 +135,13 @@ const Comment = ({
         </>
       ) : null}
       {showReplies &&
-        replies?.map((comment, idx) => (
-          <div className="w-[90%] mr-[1%] mt-2 ml-[10%]">
+        replies?.map((reply, idx) => (
+          <div className="w-[90%] mr-[1%] mt-2 ml-[10%]" key={idx}>
             <Replies
-              key={idx}
               Post={post}
               refreshReply={refreshReply}
               setRefreshReply={setRefreshReply}
-              comment={comment}
+              comment={reply}
               handleReply={handleReply}
             />
           </div>

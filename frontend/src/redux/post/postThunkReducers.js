@@ -1,11 +1,10 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axiosInstance from "../config/axiosConfig";
-import { BACKENDURL } from "../config/data";
+import axiosInstance from "../../config/axiosConfig";
+import { BACKENDURL } from "../../config/data";
 
 // Async thunk to fetch posts
 export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
   const response = await axiosInstance.get(BACKENDURL + "api/post/");
-  console.log(response);
   return response.data;
 });
 
@@ -64,7 +63,7 @@ export const editPost = createAsyncThunk(
   }
 );
 
-// Async thunk to add a comment
+// Async thunk to fetch comment
 export const fetchComments = createAsyncThunk(
   "posts/fetchComments",
   async (postid) => {
@@ -109,7 +108,7 @@ export const likeComment = createAsyncThunk(
   }
 );
 
-// Async thunk to add a comment
+// Async thunk to fetchreplies
 export const fetchReplies = createAsyncThunk(
   "posts/fetchReplies",
   async ({ _id, postid }) => {

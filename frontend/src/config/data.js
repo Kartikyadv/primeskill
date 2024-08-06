@@ -1,11 +1,11 @@
-import home from "../images/home.png"
-import profile from "../images/profile.png"
-import chats from "../images/chats.png"
+import home from "../images/home.png";
+import profile from "../images/profile.png";
+import chats from "../images/chats.png";
 
 export const BACKENDURL = "https://primeskill-1.onrender.com/"
-// export const BACKENDURL = "https://localhost:5000/"
+// export const BACKENDURL = "http://localhost:5000/";
 
-export const navbaroptions = [
+export const getNavbarOptions = (userid) => [
   {
     id: 1,
     name: "Home",
@@ -23,7 +23,7 @@ export const navbaroptions = [
   {
     id: 3,
     name: "Profile",
-    to: `/profile/`,
+    to: `/profile/${userid}`,
     icon: profile,
     authreq: true,
   },

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useDispatch } from 'react-redux';
-import { createPost } from '../redux/postThunkReducers';
+import { createPost } from '../redux/post/postThunkReducers';
 import { toast } from "react-toastify";
 
 const PostForm = ({ isFormVisible, setIsFormVisible }) => {

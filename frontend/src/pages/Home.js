@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Posts from './Posts';
-import { fetchPosts } from '../redux/postThunkReducers';
+import Posts from '../components/Posts';
+import { fetchPosts } from '../redux/post/postThunkReducers';
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -15,7 +15,6 @@ const Home = () => {
 
   return (
     <div className="pt-24">
-      <h1>dummy data</h1>
       {postStatus === 'loading' && <div>Loading...</div>}
       {postStatus === 'failed' && <div>{error}</div>}
       {postStatus === 'succeeded' &&

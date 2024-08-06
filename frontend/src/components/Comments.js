@@ -1,22 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import Comment from "./Comment.js";
+import Comment from "./Comment";
 import send from "../images/send.png";
 import loading from "../images/loading.png";
-import { addComment, fetchComments } from "../redux/postThunkReducers.js";
+import { addComment, fetchComments } from "../redux/post/postThunkReducers";
 
 const Comments = ({ post }) => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
-  const [parentid, setparentid] = useState(null);
+  const [parentid, setParentid] = useState(null);
   const [replyTo, setReplyTo] = useState("");
-  const [refreshReply, setRefreshReply] = useState(false);
+  const [refreshComment, setRefreshComment] = useState(false);
   const inputRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useDispatch();
   const postid = post._id;
-  const [refreshComment, setRefreshComment] = useState(false);
 
   useEffect(() => {
     const fetchComment = async () => {
@@ -26,7 +25,7 @@ const Comments = ({ post }) => {
       }
     };
     fetchComment();
-  }, [refreshComment]);
+  }, [refreshComment, dispatch, postid]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,18 +39,17 @@ const Comments = ({ post }) => {
       toast("Comment added");
       setNewComment("");
       setReplyTo("");
+      setRefreshComment(!refreshComment);
     } catch (error) {
       console.error("Error submitting comment:", error);
     } finally {
       setIsSubmitting(false);
-      setRefreshComment(!refreshComment);
-      setRefreshReply(!refreshReply);
     }
   };
 
   const handleReply = (username, parentid) => {
     setReplyTo(username);
-    setparentid(parentid);
+    setParentid(parentid);
     setNewComment(`@${username} `);
     inputRef.current.focus();
   };
@@ -63,8 +61,8 @@ const Comments = ({ post }) => {
           <Comment
             key={idx}
             Post={post}
-            refreshReply={refreshReply}
-            setRefreshReply={setRefreshReply}
+            refreshReply={refreshComment}
+            setRefreshReply={setRefreshComment}
             refreshComment={refreshComment}
             setRefreshComment={setRefreshComment}
             comment={comment}

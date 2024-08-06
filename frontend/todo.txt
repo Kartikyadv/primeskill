@@ -2,11 +2,157 @@ D               comment redux change
 D               delete p image delete krna h 
 D               edit redux
 D               delete comment
-                comment reply and like
-                user post page p post dikhani h 
+D               comment reply and like
+D               user post page p post dikhani h 
                 user can edit profile
                 user can only caption or only image
 
 
                 messaging
                 audio calling video calling
+                timing issue
+                % complete your profile
+                progress bar
+                follower following
+                post validation
+                latest post vise
+                redirect to home after creating post
+                create error page
+                if a user comments reload every other user
+                post owner can delete comment
+                admin dashboard
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchMessages,
+  sendMessage,
+} from "../../redux/message/messagesThunkReducers";
+import MessageHeader from "./MessageHeader";
+import { useSocketContext } from "../../context/SocketProvider";
+import { getOtherUserName } from "../../utils/controllers";
+import { fetchConversation } from "../../redux/conversation/conversationThunkReducers";
+import axiosInstance from "../../config/axiosConfig";
+import { BACKENDURL } from "../../config/data";
+
+const MessageContainer = ({ selectedConversationId }) => {
+  const socket = useSocketContext();
+  const loggedinuser = useSelector((store) => store.user.user.userid);
+  const messages = useSelector((state) => state.messages.messages);
+  const [newMessage, setNewMessage] = useState("");
+  const [Conversation, setConversation] = useState(null);
+  const [otherParticipant, setotherParticipant] = useState(null);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchConversation = async (selectedConversationId) => {
+      const response = await axiosInstance.get(
+        `${BACKENDURL}api/chat/${selectedConversationId}`
+      );
+      setConversation(response.data.conversation);
+      
+    if (response.data.conversation) {
+      const otherparticipant = getOtherUserName(loggedinuser, response.data.conversation.participants);
+      setotherParticipant(otherparticipant);
+    }
+    };
+    if (selectedConversationId) {
+      fetchConversation(selectedConversationId);
+    }
+
+  }, [selectedConversationId]);
+
+  useEffect(() => {
+    if (selectedConversationId) dispatch(fetchMessages(selectedConversationId));
+  }, [selectedConversationId, dispatch]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("message", (messageData) => {
+        console.log(messageData)
+        // if (messageData.conversationId === selectedConversationId) {
+        //   // Dispatch an action to update the message list in Redux
+        //   dispatch({ type: "ADD_MESSAGE", payload: messageData });
+        // }
+      });
+
+      return () => {
+        socket.off("message");
+      };
+    }
+  }, [socket, selectedConversationId, dispatch]);
+
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (newMessage.trim()) {
+      console.log(otherParticipant)
+      const messageData = { otherParticipant, newMessage };
+      dispatch(sendMessage({ selectedConversationId, newMessage }));
+      // if (socket) {
+      //   socket.emit("message", messageData);
+      // }
+      setNewMessage("");
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-[89vh] w-full md:w-[70%] bg-white rounded-r-lg shadow-lg">
+      <div className="p-4 bg-gray-100 border-b border-gray-200">
+        <h3 className="text-lg font-semibold">
+          {selectedConversationId ? (
+            <MessageHeader selectedConversationId={selectedConversationId} />
+          ) : (
+            "Select a conversation to send a message"
+          )}
+        </h3>
+      </div>
+      <div className="flex-1 overflow-y-auto p-4">
+        {selectedConversationId ? (
+          messages.map((message, idx) => (
+            <div
+              key={idx}
+              className={`flex ${
+                message.sender === loggedinuser
+                  ? "justify-end"
+                  : "justify-start"
+              }`}
+            >
+              <div
+                className={`bg-${
+                  message.sender === "me" ? "blue-100" : "gray-100"
+                } max-w-xs px-4 py-2 rounded-full m-1`}
+              >
+                {message.content}
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="text-center text-gray-500 mt-4">
+            No conversation selected.
+          </div>
+        )}
+      </div>
+      {selectedConversationId && (
+        <form
+          className="flex items-center justify-between p-4 border-t border-gray-200"
+          onSubmit={handleSendMessage}
+        >
+          <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Type a message..."
+            className="flex-1 rounded-full border-gray-300 p-2 mr-4 focus:outline-none focus:ring focus:ring-blue-300"
+          />
+          <button
+            type="submit"
+            className="bg-blue-500 text-white rounded-full px-6 py-2 font-semibold hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
+          >
+            Send
+          </button>
+        </form>
+      )}
+    </div>
+  );
+};
+
+export default MessageContainer;

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { logout } from "../redux/userSlice";
-import { navbaroptions } from "../config/data";
+import { logout } from "../redux/user/userSlice";
+import { getNavbarOptions } from "../config/data";
 import LOGO from "../images/LOGO1.png"
 import logoutimg from "../images/logout.png"
 
@@ -10,6 +10,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const userid = useSelector((store) => store.user.user.userid);
   const dispatch = useDispatch();
+  const navbaroptions = getNavbarOptions(userid);
 
   const handleLogout = async () => {
     dispatch(logout());
