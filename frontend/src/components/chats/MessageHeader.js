@@ -4,12 +4,15 @@ import { useDispatch } from "react-redux";
 import { deleteConversation } from "../../redux/conversation/conversationThunkReducers";
 import { MdDelete } from "react-icons/md";
 import { FaShare } from "react-icons/fa";
+import { CiVideoOn } from "react-icons/ci";
+import { useNavigate } from "react-router-dom";
 
-const MessageHeader = ({ selectedConversationId, otherParticipantname }) => {
+const MessageHeader = ({ selectedConversationId, otherParticipant }) => {
   const convoid = selectedConversationId;
   const [showOptions, setShowOptions] = useState(false);
   const dispatch = useDispatch();
   const optionsRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -31,11 +34,17 @@ const MessageHeader = ({ selectedConversationId, otherParticipantname }) => {
   const handleDeleteConversation = () => {
     dispatch(deleteConversation(convoid));
   };
+  const handleNavigateToCall = () => {
+    navigate("/call/"+otherParticipant?._id);
+  };
 
   return (
     <div className="flex justify-between ">
-      <div className="">{otherParticipantname}</div>
-      <div>
+      <div className="">{otherParticipant?.name}</div>
+      <div className="flex">
+        <div className="mx-3 cursor-pointer" onClick={handleNavigateToCall}>
+          <CiVideoOn className="h-7 w-7"></CiVideoOn>
+        </div>
         <button className="relative" onClick={toggleOptions}>
           <img className="w-5 h-5 rounded-full" src={dots} alt="edit option" />
           <div className="absolute right-0 w-32 z-50">

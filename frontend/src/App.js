@@ -8,6 +8,7 @@ import Login from "./pages/Login.js";
 import ProtectedRoute from "./utils/ProtectedRoute.js";
 import Chats from "./pages/Chats.js";
 import { SocketProvider } from "./context/SocketProvider.js";
+import Call from "./pages/Call.js";
 
 const App = () => {
 
@@ -16,34 +17,14 @@ const App = () => {
     <div className="h-screen flex flex-col">
       <Navbar />
       <div className="flex-grow">
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route
-            path="/profile/:userid"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chats"
-            element={
-              <ProtectedRoute>
-                <Chats />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+    <Routes>
+      <Route path="/" element={ <ProtectedRoute> <Home /> </ProtectedRoute>}/>
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/profile/:userid" element={ <ProtectedRoute> <Profile /> </ProtectedRoute> }/>
+      <Route path="/chats" element={<ProtectedRoute> <Chats /> </ProtectedRoute> }/>
+      <Route path="/call/:otherParticipantId" element={<ProtectedRoute> <Call /> </ProtectedRoute>}/>
+    </Routes>
       </div>
     </div>
     </SocketProvider>

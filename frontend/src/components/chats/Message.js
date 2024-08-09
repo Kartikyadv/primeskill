@@ -92,7 +92,7 @@ const Message = ({ otherParticipantid, selectedConversationId, message }) => {
         {showOptions && (
           <div
             ref={optionsRef}
-            className="w-24 absolute left-[10%] -top-10 bg-white shadow-lg border rounded-lg p-2 text-gray-800"
+            className="w-24 absolute left-[10%] z-50 -top-10 bg-white shadow-lg border rounded-lg p-2 text-gray-800"
           >
             <ul>
               <li className="hover:bg-gray-100 rounded-lg p-1 font-semibold text-sky-900 cursor-pointer flex justify-between">
