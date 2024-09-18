@@ -1,4 +1,5 @@
 import { Server } from "socket.io";
+import User from "../models/User.js";
 
 const userSocketMap = {}; // userid: socketId
 
@@ -21,12 +22,15 @@ const initializeSocket = (server) => {
     if (userid !== "undefined") userSocketMap[userid] = socket.id;
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
-    socket.on("offer", (data) => {
+    socket.on("offer",async (data) => {
+      const sender = await User.findById(userid);
+      // console.log(sender)
       const recipientSocketId = getRecipientSocketId(data.to);
       if (recipientSocketId) {
         io.to(recipientSocketId).emit("offer", {
           offer: data.offer,
           from: userid,
+          caller: { name: sender.name, avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTA78Na63ws7B7EAWYgTr9BxhX_Z8oLa1nvOA&s" },
         });
       }
     });
@@ -57,6 +61,20 @@ const initializeSocket = (server) => {
         io.to(recipientSocketId).emit("call-ended", {
           from: userid,
         });
+      }
+    });
+
+    socket.on("typing", ({ userId,otherParticipantid }) => {
+      const recipientSocketId = getRecipientSocketId(otherParticipantid);
+      if (recipientSocketId) {
+        io.to(recipientSocketId).emit("typing", { userId });
+      }
+    });
+
+    socket.on("stop typing", ({ userId,otherParticipantid }) => {
+      const recipientSocketId = getRecipientSocketId(otherParticipantid);
+      if (recipientSocketId) {
+        io.to(recipientSocketId).emit("stop typing", { userId });
       }
     });
 

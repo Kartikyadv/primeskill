@@ -1,158 +1,167 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useSocketContext } from '../context/SocketProvider';
+import React, { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useSocketContext } from "../context/SocketProvider";
+import { useDispatch } from "react-redux";
+import { receiveCall } from "../redux/call/callSlice";
 
 const VideoCall = () => {
-  const { otherParticipantId } = useParams(); // Get the other participant's ID from the URL params
-  const localVideoRef = useRef(null); // Reference to the local video element
-  const remoteVideoRef = useRef(null); // Reference to the remote video element
-  const { socket } = useSocketContext(); // Get the socket instance from context
-  const [peerConnection, setPeerConnection] = useState(null); // State to manage the RTCPeerConnection
+  const { otherParticipantId } = useParams();
+  const localVideoRef = useRef(null);
+  const remoteVideoRef = useRef(null);
+  const { socket } = useSocketContext();
+  const [peerConnection, setPeerConnection] = useState(null);
+  // const [offeraccepted, setofferaccepted] = useState(true);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    // Create a new RTCPeerConnection instance with ICE servers
     const pc = new RTCPeerConnection({
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        // You can add TURN servers here for better connectivity
-      ],
+      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
     });
+    console.log(pc)
+    setPeerConnection(pc);
 
-    setPeerConnection(pc); // Set the RTCPeerConnection instance in state
-
-    // Handle ICE candidates and send them to the other participant
     const handleIceCandidate = (event) => {
-      if (event.candidate) {
-        socket.emit('ice-candidate', {
-          candidate: event.candidate,
+      console.log("sending ice candidate");
+
+      if (event?.candidate) {
+        socket.emit("ice-candidate", {
+          candidate: event?.candidate,
           to: otherParticipantId,
         });
       }
     };
 
-    // Handle the track event and set the remote video stream
     const handleTrackEvent = (event) => {
-      remoteVideoRef.current.srcObject = event.streams[0];
+      console.log("recieving remote video");
+      remoteVideoRef.current.srcObject = event?.streams[0];
     };
 
-    // Add event listeners for ICE candidates and track events
-    pc.addEventListener('icecandidate', handleIceCandidate);
-    pc.addEventListener('track', handleTrackEvent);
+    pc.addEventListener("icecandidate", handleIceCandidate);
+    pc.addEventListener("track", handleTrackEvent);
 
-    // Socket event handler for receiving an offer from the other participant
     const handleOffer = async (data) => {
-      if (data.from === otherParticipantId) {
-        await pc.setRemoteDescription(new RTCSessionDescription(data.offer)); // Set the remote offer description
-        const answer = await pc.createAnswer(); // Create an answer
-        await pc.setLocalDescription(answer); // Set the local answer description
-        socket.emit('answer', {
+      console.log("recived offer");
+      console.log(data.caller)
+      dispatch(receiveCall(data?.caller));
+      if (data?.from === otherParticipantId) {
+        await pc.setRemoteDescription(new RTCSessionDescription(data?.offer));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        console.log("sending answer");
+        socket.emit("answer", {
           answer,
           to: otherParticipantId,
-        }); // Send the answer to the other participant
+        });
+        // setofferaccepted(true)
       }
     };
 
-    // Socket event handler for receiving an answer from the other participant
     const handleAnswer = async (data) => {
-      if (data.from === otherParticipantId) {
-        await pc.setRemoteDescription(new RTCSessionDescription(data.answer)); // Set the remote answer description
+      console.log("recieved answer");
+      if (data?.from === otherParticipantId) {
+        await pc.setRemoteDescription(new RTCSessionDescription(data?.answer));
       }
     };
 
-    // // Socket event handler for receiving ICE candidates from the other participant
     const handleIceCandidateReceived = async (data) => {
-      if (data.from === otherParticipantId) {
+      console.log("recieved ice candidate");
+      console.log(data);
+      // console.log(offeraccepted)
+      // if(offeraccepted){
+      if (data?.from === otherParticipantId) {
         try {
-          await pc.addIceCandidate(new RTCIceCandidate(data.candidate)); // Add the received ICE candidate
+          await pc.addIceCandidate(new RTCIceCandidate(data?.candidate));
         } catch (error) {
-          console.error('Error adding received ice candidate', error);
+          console.error("Error adding received ice candidate", error);
         }
       }
+      // }
     };
 
-    // Register socket event handlers
     if (socket) {
-      socket.on('offer', handleOffer);
-      socket.on('answer', handleAnswer);
-      socket.on('ice-candidate', handleIceCandidateReceived);
+      socket.on("offer", handleOffer);
+      socket.on("answer", handleAnswer);
+      socket.on("ice-candidate", handleIceCandidateReceived);
     }
 
-    // Clean up on component unmount
     return () => {
-      pc.close(); // Close the RTCPeerConnection
-      setPeerConnection(null); // Clear the peer connection state
+      pc.close();
+      setPeerConnection(null);
       if (socket) {
-        socket.off('offer', handleOffer);
-        socket.off('answer', handleAnswer);
-        socket.off('ice-candidate', handleIceCandidateReceived);
+        socket.off("offer", handleOffer);
+        socket.off("answer", handleAnswer);
+        socket.off("ice-candidate", handleIceCandidateReceived);
       }
     };
-  }, [socket, otherParticipantId]); // Re-run effect if socket or otherParticipantId changes
+  }, [socket, otherParticipantId]);
 
   useEffect(() => {
-    // Function to get local media stream and add tracks to the peer connection
     const getLocalStream = async () => {
       try {
         const localStream = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: true,
         });
-        localVideoRef.current.srcObject = localStream; // Set the local video stream
+        localVideoRef.current.srcObject = localStream;
 
         localStream.getTracks().forEach((track) => {
-          if (peerConnection && peerConnection.signalingState !== 'closed') {
-            peerConnection.addTrack(track, localStream); // Add each track to the peer connection
+          if (peerConnection && peerConnection.signalingState !== "closed") {
+            peerConnection.addTrack(track, localStream);
           }
         });
       } catch (error) {
-        console.error('Error accessing media devices.', error);
+        console.error("Error accessing media devices.", error);
       }
     };
 
     if (peerConnection) {
-      getLocalStream(); // Get local media stream if peer connection is available
+      getLocalStream();
     }
 
-    // Clean up on component unmount
     return () => {
       if (localVideoRef.current && localVideoRef.current.srcObject) {
-        localVideoRef.current.srcObject.getTracks().forEach((track) => track.stop()); // Stop all tracks
+        localVideoRef.current.srcObject
+          .getTracks()
+          .forEach((track) => track.stop());
       }
     };
-  }, [peerConnection]); // Re-run effect if peerConnection changes
+  }, [peerConnection]);
 
-  // Function to start the call by creating and sending an offer
   const startCall = async () => {
+    console.log("sending offer");
     if (peerConnection && socket) {
-      const offer = await peerConnection.createOffer(); // Create an offer
-      await peerConnection.setLocalDescription(offer); // Set the local offer description
-      socket.emit('offer', {
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      socket.emit("offer", {
         offer: offer,
         to: otherParticipantId,
-      }); // Send the offer to the other participant
+      });
+
+      // setofferaccepted(true)
     }
   };
-  
-  // Function to end the call
+
   const endCall = () => {
     if (peerConnection) {
-      peerConnection.close(); // Close the peer connection
-      setPeerConnection(null); // Reset the peer connection state
+      peerConnection.close();
+      setPeerConnection(null);
     }
 
     if (localVideoRef.current && localVideoRef.current.srcObject) {
-      localVideoRef.current.srcObject.getTracks().forEach((track) => track.stop()); // Stop all local tracks
-      localVideoRef.current.srcObject = null; // Clear the local video element
+      localVideoRef.current.srcObject
+        .getTracks()
+        .forEach((track) => track.stop());
+      localVideoRef.current.srcObject = null;
     }
 
     if (remoteVideoRef.current) {
-      remoteVideoRef.current.srcObject = null; // Clear the remote video element
+      remoteVideoRef.current.srcObject = null;
     }
 
     if (socket) {
-      socket.emit('end-call', {
+      socket.emit("end-call", {
         to: otherParticipantId,
-      }); // Notify the other participant to end the call
+      });
     }
   };
 
@@ -179,7 +188,7 @@ const VideoCall = () => {
             <button
               className="bg-blue-600 text-white py-2 px-6 rounded-full hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
               type="button"
-              onClick={startCall} // Start call on button click
+              onClick={startCall}
             >
               Start Call
             </button>

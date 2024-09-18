@@ -81,7 +81,7 @@ export const deleteMessage = async (req, res) => {
     conversation.lastMessageId = await conversation.messages[conversation.messages.length - 1];
     await conversation.save();
     const recipientSocketId = getRecipientSocketId(otherParticipantid.toString());
-    console.log(recipientSocketId)
+    // console.log(recipientSocketId)
     res.status(200).json({
       message: "Message deleted",
       updatedConversation: conversation,

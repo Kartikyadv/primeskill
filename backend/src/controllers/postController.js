@@ -252,7 +252,7 @@ export const getpostcomment = async (req, res) => {
     if (post == null) {
       return res.status(200).json({ message: "post not found" });
     }
-    console.log(post)
+    // console.log(post)
     const postcomments = await Comment.find({
       post: postid,
     }).populate("author");

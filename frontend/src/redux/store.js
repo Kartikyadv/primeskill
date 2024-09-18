@@ -4,6 +4,7 @@ import userReducer from './user/userSlice.js';
 import postsReducer from './post/postSlice.js';
 import conversationReducer from './conversation/conversationSlice.js';
 import messageReducer from './message/messageSlice.js';
+import callReducer from './call/callSlice.js';
 
 const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ const store = configureStore({
     posts: postsReducer,
     conversations: conversationReducer,
     messages: messageReducer,
+    call: callReducer,
   },
 });
 

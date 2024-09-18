@@ -45,8 +45,8 @@ const useSocket = (url) => {
 };
 
 export const SocketProvider = ({ children }) => {
-  // const {socket,onlineUsers} = useSocket("http://localhost:5000");
-  const {socket,onlineUsers} = useSocket("https://primeskill-1.onrender.com");
+  const {socket,onlineUsers} = useSocket("http://localhost:5000");
+  // const {socket,onlineUsers} = useSocket("https://primeskill-1.onrender.com");
 
   return (
     <SocketContext.Provider value={{socket,onlineUsers}}>{children}</SocketContext.Provider>

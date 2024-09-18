@@ -20,8 +20,8 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://primeskillfront.onrender.com",
-    // origin: process.env.FRONTEND_URL,
+    // origin: "https://primeskillfront.onrender.com",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   })
 );
